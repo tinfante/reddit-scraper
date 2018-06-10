@@ -8,7 +8,6 @@ import os
 import sys
 from functools import partial
 from datetime import datetime
-#from pprint import pprint
 
 
 def transform_created(created_timestamp):
@@ -21,7 +20,7 @@ def recur_comment_thread(comment, thread_comments=None, parent=None):
         thread_comments = []     # only gets evaluated when function is defined
     if isinstance(comment, praw.models.reddit.more.MoreComments):
         for more_comment in comment.comments():
-            recur_comment_thread(more_comment, thread_comments, parent)
+            return recur_comment_thread(more_comment, thread_comments, parent)
     comment_dict = {
         'author': '[deleted]' if not comment.author else comment.author.name,
         'text': comment.body,
@@ -197,7 +196,7 @@ def main():
             'DB_USER': os.environ.get('DB_USER'),
             'DB_PASS': os.environ.get('DB_PASS'),
             'DB_NAME': 'reddit-latam',
-            'USER_AGENT': 'Praw-bot'
+            'USER_AGENT': 'Praw-bot',
             'SUBREDDITS': [
                 'chile',
                 'argentina',
@@ -231,7 +230,7 @@ def main():
 
     reddit = praw.Reddit(client_id=CONFIG['CLIENT_ID'],
                          client_secret=CONFIG['CLIENT_SECRET'],
-                         user_agent='test123')
+                         user_agent=CONFIG['USER_AGENT'])
 
     for sub_name in CONFIG['SUBREDDITS']:
         subreddit = reddit.subreddit(sub_name)
