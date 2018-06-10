@@ -223,6 +223,7 @@ def main():
             db_user=CONFIG['DB_USER'], db_pass=CONFIG['DB_PASS'],
             db_name=CONFIG['DB_NAME'])
 
+    global wipe_db
     wipe_db = partial(
             db_create_tables, db_host=CONFIG['DB_HOST'],
             db_user=CONFIG['DB_USER'], db_pass=CONFIG['DB_PASS'],

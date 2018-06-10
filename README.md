@@ -6,3 +6,4 @@ Simple script to collect data form [Reddit](https://www.reddit.com) using [Praw]
 
 - add argparse at least for db wipe/create
 - check that comment parents are correct (that the parent parameter in the comment recur function is local to each iteration)
+- loading .env doesn't work as expected. still have to set env variables.
