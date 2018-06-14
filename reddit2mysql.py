@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import praw
 import pymysql
-from dotenv import load_dotenv
 import os
 import sys
 from functools import partial
@@ -16,25 +15,27 @@ def transform_created(created_timestamp):
 
 
 def recur_comment_thread(comment, thread_comments=None, parent=None):
-    if thread_comments is None:  # gotcha! all_comments=[] as default parameter
+    if thread_comments is None:  # gotcha! thread_comments=[] as default param
         thread_comments = []     # only gets evaluated when function is defined
+
     if isinstance(comment, praw.models.reddit.more.MoreComments):
         for more_comment in comment.comments():
-            return recur_comment_thread(more_comment, thread_comments, parent)
-    comment_dict = {
-        'author': '[deleted]' if not comment.author else comment.author.name,
-        'text': comment.body,
-        'parent': parent,
-        'upvotes': comment.ups,
-        'subreddit': comment.subreddit.display_name,
-        'submission_id': comment.submission.id,
-        'created': transform_created(comment.created_utc),
-        'id': comment.id,
-        }
-    thread_comments.append(comment_dict)
-    for reply in comment.replies:
-        recur_comment_thread(
-                reply, thread_comments, comment.id)
+            recur_comment_thread(more_comment, thread_comments, parent)
+    else:
+        comment_dict = {
+            'author': '[deleted]' if not comment.author else comment.author.name,
+            'text': comment.body,
+            'parent': parent,
+            'upvotes': comment.ups,
+            'subreddit': comment.subreddit.display_name,
+            'submission_id': comment.submission.id,
+            'created': transform_created(comment.created_utc),
+            'id': comment.id
+            }
+        thread_comments.append(comment_dict)
+        for reply in comment.replies:
+            recur_comment_thread(
+                    reply, thread_comments, comment.id)
     return thread_comments
 
 
@@ -163,7 +164,7 @@ def db_create_tables(db_host, db_user, db_pass, db_name):
 
             drop_query = 'DROP TABLE IF EXISTS comment'
             cursor.execute(drop_query)
-            make_query = (
+            create_query = (
                     "CREATE TABLE comment ( "
                     "id VARCHAR(7) NOT NULL PRIMARY KEY, "
                     "submission_id VARCHAR(6) NOT NULL, "
@@ -176,7 +177,7 @@ def db_create_tables(db_host, db_user, db_pass, db_name):
                     "FOREIGN KEY (submission_id) REFERENCES submission(id)"
                     ") CHARSET=utf8mb4 COLLATE=utf8mb4_bin"
                     )
-            cursor.execute(make_query)
+            cursor.execute(create_query)
 
             fkc1_query = 'SET FOREIGN_KEY_CHECKS = 1'
             cursor.execute(fkc1_query)
@@ -187,11 +188,9 @@ def db_create_tables(db_host, db_user, db_pass, db_name):
 
 def main():
 
-    load_dotenv(dotenv_path=os.path.realpath(__file__))
-
     CONFIG = {
-            'CLIENT_ID': os.environ.get('REDDIT_ID'),
-            'CLIENT_SECRET': os.environ.get('REDDIT_SECRET'),
+            'REDDIT_ID': os.environ.get('REDDIT_ID'),
+            'REDDIT_SECRET': os.environ.get('REDDIT_SECRET'), # se deberian llamar igual
             'DB_HOST': os.environ.get('DB_HOST'),
             'DB_USER': os.environ.get('DB_USER'),
             'DB_PASS': os.environ.get('DB_PASS'),
@@ -229,8 +228,8 @@ def main():
             db_user=CONFIG['DB_USER'], db_pass=CONFIG['DB_PASS'],
             db_name=CONFIG['DB_NAME'])
 
-    reddit = praw.Reddit(client_id=CONFIG['CLIENT_ID'],
-                         client_secret=CONFIG['CLIENT_SECRET'],
+    reddit = praw.Reddit(client_id=CONFIG['REDDIT_ID'],
+                         client_secret=CONFIG['REDDIT_SECRET'],
                          user_agent=CONFIG['USER_AGENT'])
 
     for sub_name in CONFIG['SUBREDDITS']:
