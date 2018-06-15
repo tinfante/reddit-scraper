@@ -190,7 +190,7 @@ def main():
 
     CONFIG = {
             'REDDIT_ID': os.environ.get('REDDIT_ID'),
-            'REDDIT_SECRET': os.environ.get('REDDIT_SECRET'), # se deberian llamar igual
+            'REDDIT_SECRET': os.environ.get('REDDIT_SECRET'),
             'DB_HOST': os.environ.get('DB_HOST'),
             'DB_USER': os.environ.get('DB_USER'),
             'DB_PASS': os.environ.get('DB_PASS'),
