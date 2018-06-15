@@ -7,6 +7,7 @@ import os
 import sys
 from functools import partial
 from datetime import datetime
+import argparse
 
 
 def transform_created(created_timestamp):
@@ -222,7 +223,6 @@ def main():
             db_user=CONFIG['DB_USER'], db_pass=CONFIG['DB_PASS'],
             db_name=CONFIG['DB_NAME'])
 
-    global wipe_db
     wipe_db = partial(
             db_create_tables, db_host=CONFIG['DB_HOST'],
             db_user=CONFIG['DB_USER'], db_pass=CONFIG['DB_PASS'],
@@ -231,6 +231,13 @@ def main():
     reddit = praw.Reddit(client_id=CONFIG['REDDIT_ID'],
                          client_secret=CONFIG['REDDIT_SECRET'],
                          user_agent=CONFIG['USER_AGENT'])
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--create-tables', action='store_true',
+            help='Creates DB tables. Drops them before if they exist.')
+    args = parser.parse_args()
+    if args.create_tables:
+        wipe_db()
 
     for sub_name in CONFIG['SUBREDDITS']:
         subreddit = reddit.subreddit(sub_name)
