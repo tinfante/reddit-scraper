@@ -210,8 +210,12 @@ def main():
             }
 
     for key in CONFIG.keys():
+        unset_keys = []
         if CONFIG[key] is None:
-            sys.exit(key + ' not in environment variables... exiting.')
+            unset_keys.append(key)
+    if unset_keys:
+        sys.exit(', '.join(unset_keys) + \
+                 ' not in environment variables... exiting.')
 
     save_submission = partial(
             db_insert_submission, db_host=CONFIG['DB_HOST'],
